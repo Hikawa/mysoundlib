@@ -7,26 +7,31 @@
 
 class SimpleConvolutor: public SoundProcessor {
 public:
-  SimpleConvolutor() {}
-  SimpleConvolutor(const std::vector<double>& filter) {
-    setFilter(filter);
-  }
-  SimpleConvolutor(std::vector<double>&& filter) {
-    setFilter(filter);
+  SimpleConvolutor(int inputStep, const std::vector<double>& filter)
+    : filter_(filter)
+    , inputStep_(inputStep)
+  {
+    init();
   }
 
-  std::vector<double>& filter() const { return filter_; }
-  void setFilter(const std::vector<double>& v) { filter_ = v; }
-  void setFilter(std::vector<double>&& v) { filter_.swap(v); }
+  SimpleConvolutor(int inputStep, std::vector<double>&& filter)
+    : filter_(filter)
+    , inputStep_(inputStep)
+  {
+    init();
+  }
 
   virtual int inputCount() override { return 1; }
   virtual int outputCount() override { return 1; }
 
+  virtual bool process(double** inputs, double** outputs) override;
+
   virtual int inputStep() const override { return inputStep_; }
-  virtual void setInputStep(int v) override;
 
 private:
+  void init();
+
   std::vector<double> filter_;
-  int inputStep_;
-  std::unique_ptr<double[]> buffer_;
+  int inputStep_ = UNDEFINED_STEP;
+  std::vector<double> buffer_; // filter_.size() - 1
 };

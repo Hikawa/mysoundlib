@@ -42,3 +42,9 @@ void SoundProcessor::run() {
   } while (!isFinished());
 }
 
+void SoundProcessor::setSources(const SoundProcessor* sources) {
+  assert(sources->outputPortCount() >= inputPortCount());
+  for (int i = 0; i < inputPortCount(); ++i)
+    inputPort(i)->setSource(sources->outputPort(i));
+}
+

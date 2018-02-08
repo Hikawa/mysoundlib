@@ -83,6 +83,8 @@ public:
   void run();
   //std::vector<double>* run(const std::vector<double>* inputs);
 
+  void setSources(const SoundProcessor* sources);
+
 protected:
   std::vector<std::unique_ptr<IInputPort>> inputPorts_;
   std::vector<std::unique_ptr<IOutputPort>> outputPorts_;

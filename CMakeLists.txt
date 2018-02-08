@@ -21,7 +21,8 @@ SET(HEADERS
   Group.h
   FirDesign.h
   DspWindows.h
-  FftConvolutor.h)
+  FftConvolutor.h
+  Parallel.h)
   
 SET(SOURCES
   SoundProcessor.cpp
@@ -33,6 +34,7 @@ SET(SOURCES
   FirDesign.cpp
   DspWindows.cpp
   FftConvolutor.cpp
+  Parallel.cpp
   main.cpp)
 
 

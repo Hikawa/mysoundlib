@@ -46,6 +46,7 @@ public:
   Group(const std::list<SoundProcessor*>& children);
 
   virtual void process() override;
+  virtual bool isFinished() const override;
 
 private:
   std::vector<std::unique_ptr<SoundProcessor>> children_;

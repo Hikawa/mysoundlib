@@ -21,7 +21,8 @@ void SimpleConvolutor::process() {
   double* output = outputPort(0)->data();
   
   for (int n = 0; n < s; ++n) {
-    double acc = (n < buffer_.size())? buffer_[n]: 0.0;
+    double acc = 0.0;
+    if (n < bufferFilled_) acc += buffer_[n];
     for (int k = 0; (k < filter_.size()) && (k < n + 1); ++k) {
       acc += filter_[k] * input[n - k];
     }
@@ -32,7 +33,8 @@ void SimpleConvolutor::process() {
 
   for (int p = 0; p < bufferFilled_; ++p) {
     const int n = s + p;
-    double acc = (n < buffer_.size())? buffer_[n]: 0.0;
+    double acc = 0.0;
+    if (n < buffer_.size()) acc += buffer_[n];
     for (int k = p + 1; (k < filter_.size()) && (k < n + 1); ++k) {
       acc += filter_[k] * input[n - k];
     }

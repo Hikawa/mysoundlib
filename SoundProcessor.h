@@ -70,7 +70,7 @@ public:
 
   virtual ~SoundProcessor() {}
 
-  bool isFinished() const;
+  virtual bool isFinished() const;
   
   int inputPortCount() const { return inputPorts_.size(); }
   IInputPort* inputPort(int i) const { return inputPorts_[i].get(); }

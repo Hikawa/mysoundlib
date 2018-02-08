@@ -10,6 +10,8 @@ public:
   virtual void process() override;
   int step() const { return inputPort(0)->source()->bufferSize(); }
 
+  virtual bool isFinished() const override { return inputPort(0)->source()->size() <= 0; }
+
 private:
 };
 

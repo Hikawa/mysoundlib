@@ -3,12 +3,14 @@ project(mysoundlib)
 
 find_package(PkgConfig)
 pkg_check_modules(SNDFILE REQUIRED sndfile)
+pkg_check_modules(FFTW3 REQUIRED fftw3)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(
-  ${SNDFILE_INCLUDE_DIRS})
+  ${SNDFILE_INCLUDE_DIRS}
+  ${FFTW3_INCLUDE_DIRS})
 
 SET(HEADERS
   SoundProcessor.h
@@ -18,7 +20,8 @@ SET(HEADERS
   SoundFileWriter.h
   Group.h
   FirDesign.h
-  DspWindows.h)
+  DspWindows.h
+  FftConvolutor.h)
   
 SET(SOURCES
   SoundProcessor.cpp
@@ -29,11 +32,12 @@ SET(SOURCES
   Group.cpp
   FirDesign.cpp
   DspWindows.cpp
+  FftConvolutor.cpp
   main.cpp)
 
 
 add_executable(mysoundlib ${HEADERS} ${SOURCES})
-target_link_libraries(mysoundlib ${SNDFILE_LIBRARIES} stdc++fs)  
+target_link_libraries(mysoundlib ${SNDFILE_LIBRARIES} ${FFTW3_LIBRARIES} stdc++fs)  
 
 install(TARGETS mysoundlib RUNTIME DESTINATION bin)
 

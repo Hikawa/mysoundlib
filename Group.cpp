@@ -56,3 +56,9 @@ void Group::process() {
     child->process();
 }
 
+bool Group::isFinished() const {
+  for (const auto& child: children_)
+    if (!child->isFinished()) return false;
+  return true;
+}
+

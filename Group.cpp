@@ -3,6 +3,44 @@
 #include <stdexcept>
 #include <algorithm>
 
+namespace {
+
+class ProxyOutputPort: public SoundProcessor::IOutputPort {
+public:
+  ProxyOutputPort(Group& processor, SoundProcessor::IOutputPort* target)
+    : IOutputPort(processor)
+    , target_(target)
+  {}
+  SoundProcessor::IOutputPort* target() const { return target_; }
+
+  virtual int bufferSize() const override { return target()->bufferSize(); }
+  virtual int size() const override { return target()->size(); }
+  virtual void setSize(int v) override { target()->setSize(v); }
+  virtual const double* data() const override { return target()->data(); }
+  virtual double* data() override { return target()->data(); }
+
+private:
+  SoundProcessor::IOutputPort* target_;
+};
+
+class ProxyInputPort: public SoundProcessor::IInputPort {
+public:
+  ProxyInputPort(Group& processor, SoundProcessor::IInputPort* target)
+    : IInputPort(processor)
+    , target_(target)
+  {}
+
+  SoundProcessor::IInputPort* target() const { return target_; }
+
+  virtual const SoundProcessor::IOutputPort* source() const override { return target()->source(); }
+  virtual void setSource(const SoundProcessor::IOutputPort* v) override { target()->setSource(v); }
+
+private:
+  SoundProcessor::IInputPort* target_;
+};
+
+}
+
 Group::Group(const std::list<SoundProcessor*>& children) {
   std::list<SoundProcessor*> acc;
   for (SoundProcessor* child: children) {

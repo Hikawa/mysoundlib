@@ -16,7 +16,9 @@ SET(HEADERS
   SoundFile.h
   SoundFileReader.h
   SoundFileWriter.h
-  Group.h)
+  Group.h
+  FirDesign.h
+  DspWindows.h)
   
 SET(SOURCES
   SoundProcessor.cpp
@@ -25,6 +27,8 @@ SET(SOURCES
   SoundFileReader.cpp
   SoundFileWriter.cpp
   Group.cpp
+  FirDesign.cpp
+  DspWindows.cpp
   main.cpp)
 
 

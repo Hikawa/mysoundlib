@@ -81,6 +81,7 @@ public:
   virtual void process() = 0;
 
   void run();
+  //std::vector<double>* run(const std::vector<double>* inputs);
 
 protected:
   std::vector<std::unique_ptr<IInputPort>> inputPorts_;

@@ -2,16 +2,27 @@
 
 #include <cstring>
 
-bool SoundFileWriter::process(double** inputs, double** outputs) {
-  if (channels() == 1) {
-    write(inputs[0], step_);
-    return true;
+SoundFileWriter::SoundFileWriter(const std::filesystem::path& path, int channels, double sampleRate)
+  : SoundFile(path, channels, sampleRate)
+{
+  for (int ch = 0; ch < channels; ++ch) {
+    inputPorts_.push_back(std::make_unique<InputPort>(*this));
   }
-  std::unique_ptr<double[]> buffer {new double[channels() * step_]};
-  for (int i = 0; i < step_; ++i)
+}
+
+void SoundFileWriter::process() {
+  const int s = step();
+
+  if (channels() == 1) {
+    const OutputPort* source = inputPort(0)->source();
+    write(source->data(), s);
+    return;
+  }
+
+  std::unique_ptr<double[]> buffer {new double[channels() * s]};
+  for (int i = 0; i < s; ++i)
     for (int ch = 0; ch < channels(); ++ch)
-      buffer[i * channels() + ch] = inputs[ch][i];
-  write(buffer.get(), step_);
-  return true;
+      buffer[i * channels() + ch] = inputPort(ch)->source()->data()[i];
+  write(buffer.get(), s);
 }
 

@@ -15,7 +15,7 @@ public:
   int channels() const;
   double sampleRate() const;
   int read(double* buffer, int items);
-  int write(double* buffer, int items);
+  int write(const double* buffer, int items);
 
 private:
   struct Impl;

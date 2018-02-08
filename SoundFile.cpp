@@ -46,7 +46,7 @@ int SoundFile::read(double* buffer, int items) {
   return sf_readf_double(impl_->handle, buffer, items);
 }
 
-int SoundFile::write(double* buffer, int items) {
+int SoundFile::write(const double* buffer, int items) {
   return sf_writef_double(impl_->handle, buffer, items);
 }
 

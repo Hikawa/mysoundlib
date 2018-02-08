@@ -5,17 +5,12 @@
 
 class SoundFileReader: public SoundProcessor, public SoundFile {
 public:
-  SoundFileReader(const std::filesystem::path& path): SoundFile(path) {}
+  SoundFileReader(const std::filesystem::path& path, int step);
 
-  virtual int inputCount() override { return 0; }
-  virtual int outputCount() override { return channels(); }
+  int step() const { return outputPort(0)->bufferSize(); }
 
-  virtual bool process(double** inputs, double** outputs) override;
-
-  virtual int inputStep() const override { return step_; }
-  void setStep(int v) { step_ = v; }
+  virtual void process() override;
 
 private:
-  int step_;
 };
 

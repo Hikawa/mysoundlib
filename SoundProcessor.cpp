@@ -2,14 +2,15 @@
 
 #include <cassert>
 
+bool SoundProcessor::isFinished() const {
+  for (const auto& p: outputPorts_)
+    if (p->size() > 0) return false;
+  return true;
+}
+
 void SoundProcessor::run() {
-  assert(inputCount() == 0);
-  double** outputs = nullptr;
-  if (outputCount() > 0) {
-    outputs = new double*[outputCount()];
-    for (int i = 0; i < outputCount(); ++i)
-      outputs[i] = new double[outputStep()];
-  }
-  while (process(nullptr, outputs));
+  do {
+    process();
+  } while (!isFinished());
 }
 

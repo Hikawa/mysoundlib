@@ -1,29 +1,48 @@
 #include "SimpleConvolutor.h"
 
 #include <cstring>
+#include <cassert>
 
-void SimpleConvolutor::init() {
+void SimpleConvolutor::init(int step) {
+  inputPorts_.push_back(std::make_unique<InputPort>(*this));
+  outputPorts_.push_back(std::make_unique<OutputPort>(*this, step));
+
   buffer_.resize(filter_.size() - 1);
   memset(buffer_.data(), 0, buffer_.size() * sizeof(double));
+  bufferFilled_ = buffer_.size();
 }
 
-bool SimpleConvolutor::process(double** inputs, double** outputs) {
-  for (int n = 0; n < inputStep_; ++n) {
-    double s = (n < buffer_.size())? buffer_[n]: 0.0;
+void SimpleConvolutor::process() {
+  const int s = step();
+  const OutputPort* source = inputPort(0)->source();
+  assert(source);
+  assert(source->bufferSize() == s);
+  const double* input = source->data();
+  double* output = outputPort(0)->data();
+  
+  for (int n = 0; n < s; ++n) {
+    double acc = (n < buffer_.size())? buffer_[n]: 0.0;
     for (int k = 0; (k < filter_.size()) && (k < n + 1); ++k) {
-      s += filter_[k] * inputs[0][n - k];
+      acc += filter_[k] * input[n - k];
     }
-    outputs[0][n] = s;
+    output[n] = acc;
   }
 
-  for (int p = 0; p < filter_.size() - 1; ++p) {
-    const int n = inputStep_ + p;
-    double s = (n < buffer_.size())? buffer_[n]: 0.0;
+  bufferFilled_ += (- s + source->size());
+
+  for (int p = 0; p < bufferFilled_; ++p) {
+    const int n = s + p;
+    double acc = (n < buffer_.size())? buffer_[n]: 0.0;
     for (int k = p + 1; (k < filter_.size()) && (k < n + 1); ++k) {
-      s += filter_[k] * inputs[0][n - k];
+      acc += filter_[k] * input[n - k];
     }
-    buffer_[p] = s;
+    buffer_[p] = acc;
   }
-  return true;
+
+  int outputSize = s;
+  if (bufferFilled_ < 0) outputSize += bufferFilled_;
+  if (outputSize < 0) outputSize = 0;
+
+  outputPort(0)->setSize(outputSize);
 }
 

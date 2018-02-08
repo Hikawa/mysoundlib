@@ -15,25 +15,40 @@ Group::Group(const std::list<SoundProcessor*>& children) {
         }
       }
     }
-    auto firstDestination = acc.rend();
-    auto it = acc.rbegin();
-    for (; (it != acc.rend()) && (it.base() != lastSource); it++) {
-      for (int input = 0; input < (*it)->inputPortCount(); ++input) {
-        if (&(*it)->inputPort(input)->source()->processor() == child) {
-          firstDestination = it;
-        }
-      }
-    }
-    for (; it != acc.rend(); ++it) {
-      for (int input = 0; input < (*it)->inputPortCount(); ++input) {
-        if (&(*it)->inputPort(input)->source()->processor() == child) {
-          throw std::runtime_error("Dependency cycle in group");
+    acc.insert(lastSource == acc.end()? acc.begin(): std::next(lastSource), child);
+  }
+  for (SoundProcessor* child: acc)
+    children_.push_back(std::unique_ptr<SoundProcessor>(child));
+
+  std::list<IInputPort*> inputs;
+  std::list<IOutputPort*> outputs;
+
+  for (const auto& child: children_) {
+    for (int i = 0; i < child->inputPortCount(); ++i)
+      inputs.push_back(child->inputPort(i));
+    for (int i = 0; i < child->outputPortCount(); ++i)
+      outputs.push_back(child->outputPort(i));
+  }
+
+  for (const auto& child: children_) {
+    bool before = true;
+    for (const auto& other: children_) {
+      if (other == child) before = false;
+      for (int i = 0; i < child->inputPortCount(); ++i) {
+        if (&child->inputPort(i)->source()->processor() == other.get()) {
+          if (!before) throw std::runtime_error("Dependency loop");
+          inputs.remove(child->inputPort(i));
+          outputs.remove(const_cast<IOutputPort*>(child->inputPort(i)->source()));
         }
       }
     }
   }
-  for (SoundProcessor* child: acc)
-    children_.push_back(std::unique_ptr<SoundProcessor>(child));
+
+  for (IInputPort* input: inputs)
+    inputPorts_.push_back(std::make_unique<ProxyInputPort>(*this, input));
+
+  for (IOutputPort* output: outputs)
+    outputPorts_.push_back(std::make_unique<ProxyOutputPort>(*this, output));
 }
 
 void Group::process() {

@@ -15,7 +15,7 @@ void SoundFileReader::process() {
   const int s = step();
 
   if (channels() == 1) {
-    OutputPort* target = outputPort(0);
+    IOutputPort* target = outputPort(0);
     double* output = target->data();
     memset(output, 0, s * sizeof(double));
     target->setSize(read(output, s));

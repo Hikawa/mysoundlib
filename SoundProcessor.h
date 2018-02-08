@@ -6,41 +6,66 @@
 
 class SoundProcessor {
 public:
-  class OutputPort {
+  class IOutputPort {
   public:
-    OutputPort(SoundProcessor& processor, int bufferSize): processor_(processor) {
-      data_.resize(bufferSize);
+    IOutputPort(SoundProcessor& processor): processor_(processor) {
     }
+    virtual ~IOutputPort() {}
 
     SoundProcessor& processor() const { return processor_; }
 
-    int bufferSize() const { return data_.size(); }
-    int size() const { return size_; }
-    void setSize(int v) {
+    virtual int bufferSize() const = 0;
+    virtual int size() const = 0;
+    virtual void setSize(int v) = 0;
+    virtual const double* data() const = 0;
+    virtual double* data() = 0;
+  private:
+    SoundProcessor& processor_;    
+  };
+
+  class OutputPort: public IOutputPort {
+  public:
+    OutputPort(SoundProcessor& processor, int bufferSize): IOutputPort(processor) {
+      data_.resize(bufferSize);
+    }
+
+    virtual int bufferSize() const override { return data_.size(); }
+    virtual int size() const override { return size_; }
+    virtual void setSize(int v) override {
       assert(v <= bufferSize());
       size_ = v;
     }
-    const double* data() const { return data_.data(); }
-    double* data() { return data_.data(); }
+    virtual const double* data() const override { return data_.data(); }
+    virtual double* data() override { return data_.data(); }
 
   private:
-    SoundProcessor& processor_;
     std::vector<double> data_;
     int size_;
   };
 
-  class InputPort {
+  class IInputPort {
   public:
-    InputPort(SoundProcessor& processor): processor_(processor) {}
+    IInputPort(SoundProcessor& processor): processor_(processor) {}
 
     SoundProcessor& processor() const { return processor_; }
 
-    const OutputPort* source() const { return source_; }
-    void setSource(const OutputPort* v) { source_ = v; }
+    virtual const IOutputPort* source() const = 0;
+    virtual void setSource(const IOutputPort* v) = 0;
 
   private:
     SoundProcessor& processor_;
-    const OutputPort* source_;
+  };
+
+
+  class InputPort: public IInputPort {
+  public:
+    InputPort(SoundProcessor& processor): IInputPort(processor) {}
+
+    virtual const IOutputPort* source() const override { return source_; }
+    virtual void setSource(const IOutputPort* v) override { source_ = v; }
+
+  private:
+    const IOutputPort* source_;
   };
 
   virtual ~SoundProcessor() {}
@@ -48,17 +73,17 @@ public:
   bool isFinished() const;
   
   int inputPortCount() const { return inputPorts_.size(); }
-  InputPort* inputPort(int i) const { return inputPorts_[i].get(); }
+  IInputPort* inputPort(int i) const { return inputPorts_[i].get(); }
 
   int outputPortCount() const { return outputPorts_.size(); }
-  OutputPort* outputPort(int i) const { return outputPorts_[i].get(); }
+  IOutputPort* outputPort(int i) const { return outputPorts_[i].get(); }
 
   virtual void process() = 0;
 
   void run();
 
 protected:
-  std::vector<std::unique_ptr<InputPort>> inputPorts_;
-  std::vector<std::unique_ptr<OutputPort>> outputPorts_;
+  std::vector<std::unique_ptr<IInputPort>> inputPorts_;
+  std::vector<std::unique_ptr<IOutputPort>> outputPorts_;
 };
 

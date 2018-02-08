@@ -14,7 +14,7 @@ void SoundFileWriter::process() {
   const int s = step();
 
   if (channels() == 1) {
-    const OutputPort* source = inputPort(0)->source();
+    const IOutputPort* source = inputPort(0)->source();
     write(source->data(), s);
     return;
   }

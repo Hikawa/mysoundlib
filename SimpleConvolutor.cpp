@@ -14,7 +14,7 @@ void SimpleConvolutor::init(int step) {
 
 void SimpleConvolutor::process() {
   const int s = step();
-  const OutputPort* source = inputPort(0)->source();
+  const IOutputPort* source = inputPort(0)->source();
   assert(source);
   assert(source->bufferSize() == s);
   const double* input = source->data();
